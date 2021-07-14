@@ -1,3 +1,5 @@
+//@flow
+
 import React from 'react'
 import { Text, View, TouchableOpacity, FlatList } from 'react-native'
 
@@ -77,18 +79,18 @@ export class TreePicker extends React.Component {
     /**
      * 是否支持多选，默认false
      */
-    multiple: boolean
+    multiple: boolean,
     /**
      * 是否只读，默认false
      */
-    readOnly?: boolean
-    data: any[]
-    value?: string
+    readOnly?: boolean,
+    data: any[],
+    value?: string,
     /**
      * value的分割符
      */
-    seperator?: string
-    ItemComponent?: any
+    seperator?: string,
+    ItemComponent?: any,
   }
 
   componentDidMount() {
@@ -98,6 +100,11 @@ export class TreePicker extends React.Component {
   componentDidUpdate(prevProps) {
     if (prevProps.value !== this.props.value) {
       this.setState({ value: this.props.value })
+    } 
+    if (prevProps.data !== this.props.data) {
+      this.setState({
+        flattenData: this.flattenData(this.props)
+      }, this.updateNodeVisibility)
     }
   }
 
