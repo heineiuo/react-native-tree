@@ -1,0 +1,21 @@
+{
+  "name": "react-native-flatlist-tree-picker",
+  "version": "1.0.0",
+  "description": "A &lt;TreePicker> based on FlatList",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heineiuo/react-native-flatlist-tree-picker.git"
+  },
+  "keywords": [],
+  "author": "heineiuo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/heineiuo/react-native-flatlist-tree-picker/issues"
+  },
+  "homepage": "https://github.com/heineiuo/react-native-flatlist-tree-picker#readme"
+}
