@@ -98,13 +98,15 @@ export class TreePicker extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.value !== this.props.value) {
-      this.setState({ value: this.props.value })
-    } 
-    if (prevProps.data !== this.props.data) {
-      this.setState({
-        flattenData: this.flattenData(this.props)
-      }, this.updateNodeVisibility)
+    if (prevProps.value !== this.props.value || prevProps.data !== this.props.data) {
+      const nextState = {}
+      if (prevProps.value !== this.props.value) {
+        nextState.value = this.props.value
+      }
+      if (prevProps.data !== this.props.data) {
+        nextState.flattenData = this.flattenData(this.props)
+      }
+      this.setState(nextState, this.updateNodeVisibility)
     }
   }
 
