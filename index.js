@@ -148,6 +148,7 @@ export class TreePicker extends React.Component {
         // 默认二级节点往下都不可见
         showChildren: false,
         visible: parent === null,
+        selectAll: false,
       }
 
       if (node.selected) {
@@ -236,6 +237,48 @@ export class TreePicker extends React.Component {
     }
   }
 
+  selectAll = (target) => {
+    const flattenData = this.state.flattenData.slice()
+    const targetItem = flattenData.find(item => item.id === target.id)
+    if (!targetItem) return
+    const { seperator = ','} = this.props
+    const selectedIds = new Set(this.state.value.split(seperator).filter(item => !!item))
+    const recur = (item) => {
+      if (item.children) {
+        item.selectAll = true
+        item.showChildren = true
+        item.children.forEach(recur)
+      } else {
+        item.visible = true
+        selectedIds.add(item.id)
+      }
+    }
+    recur(targetItem)
+    const value = Array.from(selectedIds).join(seperator)
+    this.setState({ flattenData, value })
+  }
+
+  unSelectAll = (target) => {
+    const flattenData = this.state.flattenData.slice()
+    const targetItem = flattenData.find(item => item.id === target.id)
+    if (!targetItem) return
+    const { seperator = ','} = this.props
+    const selectedIds = new Set(this.state.value.split(seperator).filter(item => !!item))
+    const recur = (item) => {
+      if (item.children) {
+        item.selectAll = false
+        item.showChildren = false
+        item.children.forEach(recur)
+      } else {
+        item.visible = visible
+        selectedIds.delete(item.id)
+      }
+    }
+    recur(targetItem)
+    const value = Array.from(selectedIds).join(seperator)
+    this.setState({ flattenData, value })
+  }
+
   renderItem = ({ item, index }) => {
     // console.log('item', item.visible, item.name)
     const {
@@ -250,7 +293,14 @@ export class TreePicker extends React.Component {
         style={itemWrapperStyle}
         onPress={(e) => this.onPressItem(e, item)}
       >
-        <ItemComponent item={item} index={index}></ItemComponent>
+        <ItemComponent 
+          helpers={{
+            selectAll: this.selectAll
+            unSelectAll: this.unSelectAll
+          }} 
+          item={item} 
+          index={index}
+        ></ItemComponent>
       </TouchableOpacity>
     )
   }
