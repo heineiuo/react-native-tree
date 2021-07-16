@@ -250,10 +250,12 @@ export class TreePicker extends React.Component {
       }
     };
 
+    if (!item.visible) return null
+
     return (
       <TouchableOpacity
         activeOpacity={activeOpacity}
-        style={[itemWrapperStyle, { display: item.visible ? 'flex' : 'none' }]}
+        style={itemWrapperStyle}
         onPress={(e) => this.onPressItem(e, item)}>
         <ItemComponent
           helpers={{

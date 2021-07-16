@@ -1,6 +1,6 @@
 {
   "name": "react-native-flatlist-tree-picker",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A &lt;TreePicker> based on FlatList",
   "main": "index.js",
   "files": [
