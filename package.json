@@ -4,7 +4,7 @@
   "description": "A &lt;TreePicker> based on FlatList",
   "main": "index.js",
   "files": [
-    "index.js"
+    "*.js"
   ],
   "scripts": {},
   "repository": {
