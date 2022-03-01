@@ -1,8 +1,6 @@
-//@flow
-
-import React from 'react';
-import { Text, View, TouchableOpacity, FlatList } from 'react-native';
-import { TreePickerItem } from './TreePickerItem';
+import React from "react";
+import { Text, View, TouchableOpacity, FlatList } from "react-native";
+import { TreePickerItem } from "./TreePickerItem";
 
 export class TreePicker extends React.Component {
   constructor(props) {
@@ -20,18 +18,19 @@ export class TreePicker extends React.Component {
     /**
      * 是否支持多选，默认false
      */
-    multiple: boolean,
+    multiple: boolean;
     /**
      * 是否只读，默认false
      */
-    readOnly?: boolean,
-    data: any[],
-    value?: string,
+    readOnly?: boolean;
+    data: any[];
+    value?: string;
     /**
      * value的分割符
      */
-    seperator?: string,
-    ItemComponent?: any,
+    seperator?: string;
+    ItemComponent?: any;
+    onValueChange?: any;
   };
 
   componentDidMount() {
@@ -57,10 +56,10 @@ export class TreePicker extends React.Component {
   flattenData = (props) => {
     const {
       data = [],
-      keyOfChildren = 'children',
-      keyOfName = 'name',
-      keyOfId = 'id',
-      value = '',
+      keyOfChildren = "children",
+      keyOfName = "name",
+      keyOfId = "id",
+      value = "",
     } = props;
     const makeParentBranchShowChildren = (parent) => {
       if (parent) {
@@ -135,8 +134,8 @@ export class TreePicker extends React.Component {
   };
 
   onPressItem = (e, item) => {
-    const { readOnly, seperator = ',' } = this.props;
-    const { value = '' } = this.state;
+    const { readOnly, seperator = "," } = this.props;
+    const { value = "" } = this.state;
     const itemInData = this.state.flattenData.find(
       (dataItem) => item.id === dataItem.id
     );
@@ -155,7 +154,7 @@ export class TreePicker extends React.Component {
     } else {
       if (readOnly) return;
       const valueIds = new Set(
-        value.split(seperator).filter((valueItem) => valueItem !== '')
+        value.split(seperator).filter((valueItem) => valueItem !== "")
       );
       if (valueIds.has(item.id)) {
         valueIds.delete(item.id);
@@ -188,7 +187,7 @@ export class TreePicker extends React.Component {
   };
 
   selectAll = (target) => {
-    const { seperator = ',' } = this.props;
+    const { seperator = "," } = this.props;
     const selectedIds = new Set(
       this.state.value.split(seperator).filter((item) => !!item)
     );
@@ -213,7 +212,7 @@ export class TreePicker extends React.Component {
 
   unSelectAll = (target) => {
     const flattenData = [...(this.state.flattenData || [])];
-    const { seperator = ',' } = this.props;
+    const { seperator = "," } = this.props;
     const selectedIds = new Set(
       this.state.value.split(seperator).filter((item) => !!item)
     );
@@ -250,19 +249,21 @@ export class TreePicker extends React.Component {
       }
     };
 
-    if (!item.visible) return null
+    if (!item.visible) return null;
 
     return (
       <TouchableOpacity
         activeOpacity={activeOpacity}
         style={itemWrapperStyle}
-        onPress={(e) => this.onPressItem(e, item)}>
+        onPress={(e) => this.onPressItem(e, item)}
+      >
         <ItemComponent
           helpers={{
             toggleSelectAll,
           }}
           item={item}
-          index={index}></ItemComponent>
+          index={index}
+        ></ItemComponent>
       </TouchableOpacity>
     );
   };
@@ -279,7 +280,8 @@ export class TreePicker extends React.Component {
         style={style}
         keyExtractor={this.keyExtractor}
         data={this.state.flattenData}
-        renderItem={this.renderItem}></FlatList>
+        renderItem={this.renderItem}
+      ></FlatList>
     );
   }
 }
