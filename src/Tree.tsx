@@ -1,9 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { FlatList, StyleProp, ViewStyle, createElement } from "react-native";
-import { TreeItemProps } from ".";
-
 import { DefaultTreeItem } from "./DefaultTreeItem";
-import { TreeItem } from "./types";
+import { TreeItem, TreeItemProps } from "./types";
 
 export function Tree({
   onSelectedChange,
