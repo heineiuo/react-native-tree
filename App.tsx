@@ -3,27 +3,33 @@ import { StyleSheet, Text, View } from "react-native";
 import { TreePicker } from "./src";
 
 export default function App() {
-  const [value, setValue] = React.useState("");
+  const [selected, setSelected] = React.useState([]);
   const [data] = React.useState([
     {
       id: "a",
-      name: "a",
+      label: "a",
       children: [
         {
           id: "a-a",
-          name: "a-a",
+          label: "a-a",
         },
         {
           id: "a-b",
-          name: "a-b",
+          label: "a-b",
           children: [
             {
               id: "a-b-a",
-              name: "a-b-a",
+              label: "a-b-a",
             },
             {
               id: "a-b-b",
-              name: "a-b-b",
+              label: "a-b-b",
+              children: [
+                {
+                  id: "a-b-b-a",
+                  label: "a-b-b-a",
+                },
+              ],
             },
           ],
         },
@@ -32,7 +38,7 @@ export default function App() {
 
     {
       id: "b",
-      name: "b",
+      label: "b",
     },
   ]);
   return (
@@ -40,12 +46,16 @@ export default function App() {
       <View style={{ height: 20 }} />
 
       <View>
-        <Text>value:{value}</Text>
+        <Text>selected:{selected}</Text>
       </View>
       <View style={{ height: 20 }} />
 
       <View>
-        <TreePicker data={data} onValueChange={setValue} value={value} />
+        <TreePicker
+          data={data}
+          onSelectedChange={setSelected}
+          selected={selected}
+        />
       </View>
     </View>
   );

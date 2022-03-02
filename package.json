@@ -1,13 +1,13 @@
 {
-  "name": "react-native-flatlist-tree-picker",
+  "name": "react-native-tree-plus",
   "version": "1.0.3",
   "description": "A &lt;TreePicker> based on FlatList",
   "license": "MIT",
   "author": "heineiuo",
   "bugs": {
-    "url": "https://github.com/heineiuo/react-native-flatlist-tree-picker/issues"
+    "url": "https://github.com/heineiuo/react-native-tree/issues"
   },
-  "homepage": "https://github.com/heineiuo/react-native-flatlist-tree-picker#readme",
+  "homepage": "https://github.com/heineiuo/react-native-tree#readme",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "build:commonjs": "babel src --out-dir lib/commonjs --extensions '.ts,.tsx' --source-maps",
@@ -31,7 +31,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/heineiuo/react-native-flatlist-tree-picker.git"
+    "url": "git+https://github.com/heineiuo/react-native-tree.git"
   },
   "devDependencies": {
     "@babel/cli": "^7.17.6",

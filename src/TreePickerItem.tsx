@@ -1,14 +1,39 @@
-import React from "react";
-import { Text, View, TouchableOpacity, FlatList } from "react-native";
+import React, { useCallback } from "react";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  ViewStyle,
+  StyleProp,
+  PlatformColor,
+} from "react-native";
+import { TreeItem } from "./types";
 
-export class TreePickerItem extends React.Component {
-  props: {
-    item: any;
-  };
+const colors = ["orange", "purple", "pink", "blue", "red", "yellow", "green"];
 
-  render() {
-    const { item, helpers } = this.props;
-    return (
+export function TreePickerItem({
+  item,
+  activeOpacity,
+  itemWrapperStyle,
+  onToggleSelectRecursive,
+  onToggleSelect,
+  onToggleExpandRecursive,
+  onToggleExpand,
+}: {
+  activeOpacity: number;
+  itemWrapperStyle: StyleProp<ViewStyle>;
+  item: TreeItem;
+  onToggleSelectRecursive: () => void;
+  onToggleSelect: () => void;
+  onToggleExpandRecursive: () => void;
+  onToggleExpand: () => void;
+}) {
+  return (
+    <TouchableOpacity
+      activeOpacity={activeOpacity}
+      style={itemWrapperStyle}
+      onPress={onToggleExpand}
+    >
       <View style={{}}>
         <View
           style={{
@@ -16,26 +41,55 @@ export class TreePickerItem extends React.Component {
             flexDirection: "row",
             alignItems: "center",
             paddingLeft: 12 + item.level * 12,
-            backgroundColor: item.selected ? "#ccc" : "transparent",
+
+            // backgroundColor: item.selected ? "#ccc" : "transparent",
             justifyContent: "space-between",
           }}
         >
-          <View style={{ flexDirection: "row" }}>
+          <View
+            style={{
+              flex: 1,
+              height: 40,
+              flexDirection: "row",
+              borderBottomWidth: 1,
+              borderLeftWidth: 1,
+              backgroundColor: colors[item.level] ?? "#ccc",
+            }}
+          >
             <View style={{ width: 40 }}>
-              {item.hasChildren && <Text>{item.showChildren ? "x" : "o"}</Text>}
+              {item.hasChildren && <Text>{item.isExpanded ? "-" : "+"}</Text>}
             </View>
-            <Text>{item.name}</Text>
+            <Text>{item.label}</Text>
           </View>
-          <View>
+          <View
+            style={{
+              display: item.hasChildren ? "flex" : "none",
+              position: "absolute",
+              right: 0,
+              top: 0,
+              height: 40,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <TouchableOpacity onPress={onToggleExpandRecursive}>
+              <Text>
+                {item.isExpandedRecursive ? "Collapse All" : "Expand All"}
+              </Text>
+            </TouchableOpacity>
+            <View style={{ width: 10 }}></View>
             <TouchableOpacity
               style={{ display: item.hasChildren ? "flex" : "none" }}
-              onPress={helpers.toggleSelectAll}
+              onPress={onToggleSelect}
             >
-              <Text>{item.selectAll ? "取消全选" : "全选"}</Text>
+              <Text>
+                {item.isSelectedRecursive ? "Unselect All" : "Select All"}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
-    );
-  }
+    </TouchableOpacity>
+  );
 }

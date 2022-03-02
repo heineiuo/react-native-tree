@@ -1,107 +1,130 @@
-import React from "react";
-import { Text, View, TouchableOpacity, FlatList } from "react-native";
+import React, { useCallback, useMemo, useState } from "react";
+import { FlatList, StyleProp, ViewStyle, createElement } from "react-native";
+
 import { TreePickerItem } from "./TreePickerItem";
+import { TreeItem } from "./types";
 
-export class TreePicker extends React.Component {
-  constructor(props) {
-    super(props);
+export function TreePicker({
+  onSelectedChange,
+  style,
+  renderItem = TreePickerItem,
+  itemWrapperStyle,
+  activeOpacity,
+  data = [],
+  keyExtractor,
+  keyOfChildren = "children",
+  keyOfLabel = "label",
+  keyOfId = "id",
+  selected = [],
+  readOnly,
+}: {
+  keyExtractor?: (item: any, index: number) => string;
+  style?: StyleProp<ViewStyle>;
+  itemWrapperStyle?: StyleProp<ViewStyle>;
+  activeOpacity?: number;
+  keyOfId?: string;
+  keyOfChildren?: string;
+  keyOfLabel?: string;
+  /**
+   * 是否支持多选，默认false
+   */
+  multiple?: boolean;
+  /**
+   * 是否只读，默认false
+   */
+  readOnly?: boolean;
+  data: any[];
+  selected?: string[];
+  renderItem?: any;
+  onSelectedChange?: any;
+}) {
+  const [internalSelected, setSelected] = useState(selected);
+  const [internalExpanded, setExpanded] = useState([]);
+  const [collapsed, setCollapsed] = useState([]);
+  const [internalSelectedRecursive, setSelectedRecursive] = useState([]);
+  const [internalExpandedRecursive, setExpandedRecursive] = useState([]);
 
-    const flattenData = this.flattenData(props);
-
-    this.state = {
-      value: props.value,
-      flattenData,
-    };
-  }
-
-  props: {
-    /**
-     * 是否支持多选，默认false
-     */
-    multiple: boolean;
-    /**
-     * 是否只读，默认false
-     */
-    readOnly?: boolean;
-    data: any[];
-    value?: string;
-    /**
-     * value的分割符
-     */
-    seperator?: string;
-    ItemComponent?: any;
-    onValueChange?: any;
-  };
-
-  componentDidMount() {
-    this.updateNodeVisibility();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (
-      prevProps.value !== this.props.value ||
-      prevProps.data !== this.props.data
-    ) {
-      const nextState = {};
-      if (prevProps.value !== this.props.value) {
-        nextState.value = this.props.value;
-      }
-      if (prevProps.data !== this.props.data) {
-        nextState.flattenData = this.flattenData(this.props);
-      }
-      this.setState(nextState, this.updateNodeVisibility);
-    }
-  }
-
-  flattenData = (props) => {
-    const {
-      data = [],
-      keyOfChildren = "children",
-      keyOfName = "name",
-      keyOfId = "id",
-      value = "",
-    } = props;
-    const makeParentBranchShowChildren = (parent) => {
+  /**
+   * get flat data from tree data
+   */
+  const internalData = useMemo<TreeItem[]>(() => {
+    console.log({
+      data,
+      internalSelected,
+      internalExpanded,
+      internalSelectedRecursive,
+      internalExpandedRecursive,
+    });
+    const makeParentBranchShowChildren = (parent: TreeItem | null) => {
       if (parent) {
-        parent.showChildren = true;
+        parent.isExpanded = true;
         makeParentBranchShowChildren(parent.parent);
       }
     };
 
+    const hasAncestorExpandedRecursive = (
+      parent: TreeItem | null,
+      level = -1
+    ) => {
+      if (!parent) {
+        return false;
+      }
+
+      if (parent.isExpandedRecursive) {
+        return true;
+      }
+      if (!parent.isExpanded) {
+        return false;
+      }
+
+      return hasAncestorExpandedRecursive(parent.parent, --level);
+    };
+
     const result = [];
 
-    const recur = (item, parent = null, level = 0) => {
+    const recur = (item: any, parent: null | TreeItem = null, level = 0) => {
       const id = item[keyOfId];
-      const name = item[keyOfName];
+      const label = item[keyOfLabel];
       const children = item[keyOfChildren];
 
       const originalItem = { ...item };
       delete originalItem[keyOfChildren];
 
       const hasChildren = children && children.length > 0;
+      const isInExpandedRecursiveBranch = hasAncestorExpandedRecursive(parent);
+      const isSelected = internalSelected.includes(id);
+      const isSelectedRecursive = internalSelectedRecursive.includes(id);
+      const isExpanded =
+        !collapsed.includes(id) &&
+        (internalExpanded.includes(id) ||
+          internalExpandedRecursive.includes(id) ||
+          isInExpandedRecursiveBranch);
+      const isExpandedRecursive = internalExpandedRecursive.includes(id);
+      let isVisible =
+        parent === null || (parent.isVisible && parent.isExpanded);
 
-      const node = {
+      const node: TreeItem = {
         id,
-        name,
+        label,
         parent,
         originalItem,
         level,
         hasChildren,
-        selected: value.indexOf(id) > -1,
-        // 默认二级节点往下都不可见
-        showChildren: false,
-        visible: parent === null,
-        selectAll: false,
+        isVisible,
+        isSelected,
+        isSelectedRecursive,
+        isExpanded,
+        isExpandedRecursive,
       };
 
-      if (node.selected) {
+      if (isSelected) {
         makeParentBranchShowChildren(node.parent);
       }
 
       result.push(node);
 
       if (hasChildren) {
-        node.children = children.map((childItem) => {
+        node.children = children.map((childItem: any) => {
           return recur(childItem, node, level + 1);
         });
       }
@@ -111,177 +134,152 @@ export class TreePicker extends React.Component {
     data.forEach((item) => recur(item));
 
     return result;
-  };
+  }, [
+    data,
+    collapsed,
+    internalSelected,
+    internalExpanded,
+    internalSelectedRecursive,
+    internalExpandedRecursive,
+  ]);
 
-  updateNodeVisibility = () => {
-    const flattenData = [...(this.state.flattenData || [])];
-    // console.log('flattenData', flattenData)
-    for (const node of flattenData) {
-      node.visible = !node.parent;
-    }
-
-    for (const node of flattenData) {
-      if (node.hasChildren && node.showChildren) {
-        for (const child of node.children) {
-          child.visible = true;
-        }
-      }
-    }
-
-    this.setState({
-      flattenData,
-    });
-  };
-
-  onPressItem = (e, item) => {
-    const { readOnly, seperator = "," } = this.props;
-    const { value = "" } = this.state;
-    const itemInData = this.state.flattenData.find(
-      (dataItem) => item.id === dataItem.id
-    );
-    if (itemInData.hasChildren) {
-      this.setState(
-        {
-          flattenData: this.state.flattenData.map((dataItem) => {
-            if (dataItem.id === item.id) {
-              dataItem.showChildren = !dataItem.showChildren;
+  /**
+   * internal render item
+   * if item is not visible, return null
+   */
+  const internalRenderItem = useCallback(
+    ({ item, index }: { item: TreeItem; index: number }) => {
+      const onToggleSelect = () => {
+        setSelected((prev) => {
+          let prevSelected = false;
+          return prev.filter((item1) => {
+            let pass = item.id !== item1;
+            if (!pass) {
+              prevSelected = true;
             }
-            return dataItem;
-          }),
-        },
-        this.updateNodeVisibility
-      );
-    } else {
-      if (readOnly) return;
-      const valueIds = new Set(
-        value.split(seperator).filter((valueItem) => valueItem !== "")
-      );
-      if (valueIds.has(item.id)) {
-        valueIds.delete(item.id);
-      } else {
-        valueIds.add(item.id);
-      }
-      const nextValue = Array.from(valueIds).join(seperator);
-      this.setState(
-        {
-          value: nextValue,
-          flattenData: this.state.flattenData.map((dataItem) => {
-            if (dataItem.id === item.id) {
-              dataItem.selected = !dataItem.selected;
+            return pass;
+          });
+        });
+      };
+
+      const onToggleSelectRecursive = () => {
+        setSelected((prev) => {
+          let prevSelected = false;
+          return prev.filter((item1) => {
+            let pass = item.id !== item1;
+            if (!pass) {
+              prevSelected = true;
             }
-            return dataItem;
-          }),
-        },
-        () => {
-          this.emitChange();
-          this.updateNodeVisibility();
+            return pass;
+          });
+        });
+      };
+
+      const onToggleExpand = () => {
+        if (item.isExpanded) {
+          if (internalExpandedRecursive.includes(item.id)) {
+            setExpandedRecursive((prev) => {
+              return prev.filter((id) => id !== item.id);
+            });
+          }
+          if (internalExpanded.includes(item.id)) {
+            setExpanded((prev) => {
+              return prev.filter((id) => id !== item.id);
+            });
+          }
+          setCollapsed((prev) => {
+            return prev.concat(item.id);
+          });
+        } else {
+          setCollapsed((prev) => {
+            if (prev.includes(item.id)) {
+              return prev.filter((id) => item.id !== id);
+            }
+            return prev;
+          });
+          setExpanded((prev) => {
+            return prev.concat(item.id);
+          });
         }
-      );
-    }
-  };
+      };
 
-  emitChange = () => {
-    if (this.props.onValueChange) {
-      this.props.onValueChange(this.state.value);
-    }
-  };
+      const onToggleExpandRecursive = () => {
+        if (item.isExpanded) {
+          if (!internalExpandedRecursive.includes(item.id)) {
+            setExpandedRecursive((prev) => {
+              return prev.concat(item.id);
+            });
+          } else {
+            // collapse it
+            setExpandedRecursive((prev) => {
+              return prev.filter((id) => id !== item.id);
+            });
 
-  selectAll = (target) => {
-    const { seperator = "," } = this.props;
-    const selectedIds = new Set(
-      this.state.value.split(seperator).filter((item) => !!item)
-    );
-    const recur = (item) => {
-      if (item.hasChildren) {
-        item.showChildren = true;
-        item.selectAll = true;
-        item.children.forEach(recur);
-      } else {
-        item.selected = true;
-        selectedIds.add(item.id);
-      }
-    };
-    target.selectAll = true;
-    recur(target);
-    const value = Array.from(selectedIds).join(seperator);
-    this.setState({ value }, () => {
-      this.updateNodeVisibility();
-      this.emitChange();
-    });
-  };
+            setCollapsed((prev) => {
+              return prev.concat(item.id);
+            });
+          }
+        } else {
+          // expanded it
+          setCollapsed((prev) => {
+            if (prev.includes(item.id)) {
+              return prev.filter((id) => id !== item.id);
+            }
+            return prev;
+          });
+          setExpandedRecursive((prev) => {
+            if (prev.includes(item.id)) {
+              return prev;
+            }
+            return prev.concat(item.id);
+          });
+        }
+      };
 
-  unSelectAll = (target) => {
-    const flattenData = [...(this.state.flattenData || [])];
-    const { seperator = "," } = this.props;
-    const selectedIds = new Set(
-      this.state.value.split(seperator).filter((item) => !!item)
-    );
-    const recur = (item) => {
-      if (item.hasChildren) {
-        item.selectAll = false;
-        item.children.forEach(recur);
-      } else {
-        item.selected = false;
-        selectedIds.delete(item.id);
-      }
-    };
-    target.selectAll = false;
-    recur(target);
-    const value = Array.from(selectedIds).join(seperator);
-    this.setState({ flattenData, value }, () => {
-      this.emitChange();
-      this.updateNodeVisibility();
-    });
-  };
+      if (!item.isVisible) return null;
 
-  renderItem = ({ item, index }) => {
-    const {
-      ItemComponent = TreePickerItem,
-      itemWrapperStyle,
+      return createElement(renderItem, {
+        activeOpacity: activeOpacity,
+        style: itemWrapperStyle,
+        onToggleSelectRecursive,
+        onToggleSelect,
+        onToggleExpandRecursive,
+        onToggleExpand,
+        item,
+        index,
+      });
+    },
+    [
+      renderItem,
       activeOpacity,
-    } = this.props;
+      collapsed,
+      internalExpanded,
+      internalExpandedRecursive,
+      internalSelected,
+      internalData,
+    ]
+  );
 
-    const toggleSelectAll = () => {
-      if (item.selectAll) {
-        this.unSelectAll(item);
-      } else {
-        this.selectAll(item);
+  /**
+   * internal key extractor
+   * return item.id if keyExtractor is not provided in props
+   */
+  const internalKeyExtractor = useCallback(
+    (item, index) => {
+      if (keyExtractor) {
+        return keyExtractor(item, index);
       }
-    };
+      return item.id;
+    },
+    [keyExtractor]
+  );
 
-    if (!item.visible) return null;
-
-    return (
-      <TouchableOpacity
-        activeOpacity={activeOpacity}
-        style={itemWrapperStyle}
-        onPress={(e) => this.onPressItem(e, item)}
-      >
-        <ItemComponent
-          helpers={{
-            toggleSelectAll,
-          }}
-          item={item}
-          index={index}
-        ></ItemComponent>
-      </TouchableOpacity>
-    );
-  };
-
-  keyExtractor = (item, index) => {
-    return item.id;
-  };
-
-  render() {
-    const { style } = this.props;
-
-    return (
-      <FlatList
-        style={style}
-        keyExtractor={this.keyExtractor}
-        data={this.state.flattenData}
-        renderItem={this.renderItem}
-      ></FlatList>
-    );
-  }
+  return (
+    <FlatList
+      style={style}
+      keyExtractor={internalKeyExtractor}
+      data={internalData}
+      renderItem={internalRenderItem}
+    ></FlatList>
+  );
 }
