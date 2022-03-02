@@ -1,13 +1,14 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { FlatList, StyleProp, ViewStyle, createElement } from "react-native";
+import { TreeItemProps } from ".";
 
-import { TreePickerItem } from "./TreePickerItem";
+import { DefaultTreeItem } from "./DefaultTreeItem";
 import { TreeItem } from "./types";
 
-export function TreePicker({
+export function Tree({
   onSelectedChange,
   style,
-  renderItem = TreePickerItem,
+  renderItem = DefaultTreeItem,
   itemWrapperStyle,
   activeOpacity,
   data = [],
@@ -35,7 +36,7 @@ export function TreePicker({
   readOnly?: boolean;
   data: any[];
   selected?: string[];
-  renderItem?: any;
+  renderItem?: (prop: TreeItemProps) => JSX.Element;
   onSelectedChange?: any;
 }) {
   const [internalSelected, setSelected] = useState(selected);
@@ -247,16 +248,19 @@ export function TreePicker({
         onToggleExpand,
         item,
         index,
+        readOnly,
       });
     },
     [
       renderItem,
+      itemWrapperStyle,
       activeOpacity,
       collapsed,
       internalExpanded,
       internalExpandedRecursive,
       internalSelected,
       internalData,
+      readOnly,
     ]
   );
 

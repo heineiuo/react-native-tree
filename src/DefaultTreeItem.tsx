@@ -1,37 +1,22 @@
-import React, { useCallback } from "react";
-import {
-  Text,
-  View,
-  TouchableOpacity,
-  ViewStyle,
-  StyleProp,
-  PlatformColor,
-} from "react-native";
-import { TreeItem } from "./types";
+import React from "react";
+import { Text, View, TouchableOpacity } from "react-native";
+import { TreeItemProps } from "./types";
 
 const colors = ["orange", "purple", "pink", "blue", "red", "yellow", "green"];
 
-export function TreePickerItem({
+export function DefaultTreeItem({
   item,
   activeOpacity,
-  itemWrapperStyle,
+  style,
   onToggleSelectRecursive,
   onToggleSelect,
   onToggleExpandRecursive,
   onToggleExpand,
-}: {
-  activeOpacity: number;
-  itemWrapperStyle: StyleProp<ViewStyle>;
-  item: TreeItem;
-  onToggleSelectRecursive: () => void;
-  onToggleSelect: () => void;
-  onToggleExpandRecursive: () => void;
-  onToggleExpand: () => void;
-}) {
+}: TreeItemProps) {
   return (
     <TouchableOpacity
       activeOpacity={activeOpacity}
-      style={itemWrapperStyle}
+      style={style}
       onPress={onToggleExpand}
     >
       <View style={{}}>

@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { TreePicker } from "./src";
+import { Tree } from "./src";
 
 export default function App() {
   const [selected, setSelected] = React.useState([]);
@@ -51,11 +51,7 @@ export default function App() {
       <View style={{ height: 20 }} />
 
       <View>
-        <TreePicker
-          data={data}
-          onSelectedChange={setSelected}
-          selected={selected}
-        />
+        <Tree data={data} onSelectedChange={setSelected} selected={selected} />
       </View>
     </View>
   );

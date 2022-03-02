@@ -1,2 +1,2 @@
-export { TreePicker } from "./TreePicker";
-export { TreePickerItem as DefaultTreePickerItem } from "./TreePickerItem";
+export { Tree } from "./Tree";
+export * from "./types";
