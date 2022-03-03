@@ -22,6 +22,8 @@ export type TreeItemProps = {
   activeOpacity: number;
   style: StyleProp<ViewStyle>;
   item: TreeItem;
+  index: number;
+  readOnly: boolean;
   onToggleSelectRecursive: () => void;
   onToggleSelect: () => void;
   onToggleExpandRecursive: () => void;
