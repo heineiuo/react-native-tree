@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { FlatList, StyleProp, ViewStyle, createElement } from "react-native";
+import React, { createElement, useCallback, useMemo, useState } from "react";
+import { FlatList, StyleProp, ViewStyle } from "react-native";
 import { DefaultTreeItem } from "./DefaultTreeItem";
 import { TreeItem, TreeItemProps } from "./types";
 
@@ -47,13 +47,13 @@ export function Tree({
    * get flat data from tree data
    */
   const internalData = useMemo<TreeItem[]>(() => {
-    console.log({
-      data,
-      internalSelected,
-      internalExpanded,
-      internalSelectedRecursive,
-      internalExpandedRecursive,
-    });
+    // console.log({
+    //   data,
+    //   internalSelected,
+    //   internalExpanded,
+    //   internalSelectedRecursive,
+    //   internalExpandedRecursive,
+    // });
     const makeParentBranchShowChildren = (parent: TreeItem | null) => {
       if (parent) {
         parent.isExpanded = true;
